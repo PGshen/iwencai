@@ -1,0 +1,101 @@
+<div id="content-settings" class="page-content hidden w-full max-w-5xl mx-auto fade-in">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-3xl font-bold">代理管理</h2>
+            <p class="text-base-content/60 mt-1">配置多个网络代理，并通过 Cookie 选择使用</p>
+        </div>
+        <button class="btn btn-primary" onclick="resetProxyForm()">新建代理</button>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+    <div class="card bg-base-100 shadow-lg border border-base-200">
+        <div class="card-body p-6">
+            <form id="proxy-form" class="space-y-4" onsubmit="event.preventDefault(); saveProxyItem();">
+                <input type="hidden" id="proxy-id">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">代理协议</span></label>
+                        <select id="proxy-scheme" class="select select-bordered w-full">
+                            <option value="http">http</option>
+                            <option value="https">https</option>
+                            <option value="socks5">socks5</option>
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">状态</span></label>
+                        <input type="checkbox" id="proxy-enabled" class="toggle toggle-primary">
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="form-control md:col-span-2">
+                        <label class="label"><span class="label-text">名称</span></label>
+                        <input type="text" id="proxy-name" placeholder="例如：公司代理或本地代理" class="input input-bordered w-full" required>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">代理服务器 IP</span></label>
+                        <input type="text" id="proxy-ip" placeholder="127.0.0.1" class="input input-bordered w-full" required>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">端口</span></label>
+                        <input type="number" id="proxy-port" placeholder="7890" class="input input-bordered w-full" required>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" class="btn btn-ghost" onclick="resetProxyForm()">重置</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card bg-base-100 shadow-lg border border-base-200">
+        <div class="card-body p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="card-title">代理列表</h3>
+                <button class="btn btn-sm" onclick="loadProxies()">刷新</button>
+            </div>
+            <div id="proxies-list" class="space-y-3">
+                <!-- proxies -->
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="divider my-8">Header 组管理</div>
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="card bg-base-100 shadow-lg border border-base-200">
+            <div class="card-body p-6">
+                <form id="header-group-form" class="space-y-4" onsubmit="event.preventDefault(); saveHeaderGroupItem();">
+                    <input type="hidden" id="header-group-id">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">名称</span></label>
+                        <input type="text" id="header-group-name" placeholder="例如：组A" class="input input-bordered w-full" required>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">Headers（原生）</span></label>
+                        <textarea id="header-group-headers" class="textarea textarea-bordered w-full h-24 font-mono text-xs" placeholder="Content-Type: application/json&#10;Cookie: other_uid=Ths"></textarea>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">关联代理（可选）</span></label>
+                        <select id="header-group-proxy" class="select select-bordered w-full">
+                            <option value="">不关联代理</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" class="btn btn-ghost" onclick="resetHeaderGroupForm()">重置</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card bg-base-100 shadow-lg border border-base-200">
+            <div class="card-body p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="card-title">Header 组列表</h3>
+                    <button class="btn btn-sm" onclick="loadHeaderGroups()">刷新</button>
+                </div>
+                <div id="header-groups-list" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+</div>

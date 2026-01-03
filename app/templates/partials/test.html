@@ -1,0 +1,78 @@
+<div id="content-test" class="page-content hidden w-full max-w-5xl mx-auto fade-in">
+    <div class="mb-6">
+        <h2 class="text-3xl font-bold">测试抓取</h2>
+        <p class="text-base-content/60 mt-1">执行抓取任务以验证配置</p>
+    </div>
+    
+    <div class="card bg-base-100 shadow-xl border border-base-200">
+        <div class="card-body p-0">
+            <!-- Tabs -->
+            <div role="tablist" class="tabs tabs-bordered w-full grid grid-cols-2">
+                <a role="tab" class="tab tab-active h-14 font-bold" onclick="switchTestMode('template', this)">模板测试</a>
+                <a role="tab" class="tab h-14 font-bold" onclick="switchTestMode('manual', this)">高级模式 (手动)</a>
+            </div>
+
+            <div class="p-6">
+                <!-- Template Mode -->
+                <div id="test-mode-template">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text">选择模板</span></label>
+                            <select id="test-template" class="select select-bordered w-full">
+                                <option value="">请选择模板...</option>
+                            </select>
+                        </div>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text">覆盖参数 (JSON)</span></label>
+                            <input type="text" id="test-params" placeholder='{"keyword": "test"}' class="input input-bordered w-full font-mono" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Mode -->
+                <div id="test-mode-manual" class="hidden space-y-4">
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div class="form-control md:col-span-1">
+                            <label class="label"><span class="label-text">Method</span></label>
+                            <select id="manual-method" class="select select-bordered w-full">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                            </select>
+                        </div>
+                        <div class="form-control md:col-span-3">
+                            <label class="label"><span class="label-text">URL</span></label>
+                            <input type="url" id="manual-url" placeholder="https://api.example.com/data" class="input input-bordered w-full" />
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Headers (JSON)</span></label>
+                            <textarea id="manual-headers" class="textarea textarea-bordered h-24 font-mono text-xs" placeholder='{"User-Agent": "..."}'></textarea>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Body (JSON/Text)</span></label>
+                            <textarea id="manual-body" class="textarea textarea-bordered h-24 font-mono text-xs" placeholder='{"key": "value"}'></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-actions justify-end mt-6">
+                    <button onclick="testScrape()" class="btn btn-primary px-8">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        执行抓取
+                    </button>
+                </div>
+            </div>
+            
+            <div id="test-result" class="hidden border-t border-base-200 bg-base-200/30 p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-bold">执行结果</h3>
+                    <button onclick="copyTestResult()" class="btn btn-xs btn-ghost">一键复制</button>
+                </div>
+                <div class="mockup-code max-h-96 overflow-auto">
+                    <pre class="px-4 text-sm"><code id="test-result-code" class="language-json"></code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

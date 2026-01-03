@@ -1,0 +1,359 @@
+    <!-- Template Modal -->
+    <dialog id="template_modal" class="modal">
+        <div class="modal-box w-11/12 max-w-4xl">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="closeTemplateModal(event)">✕</button>
+            </form>
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="template-modal-title" class="font-bold text-lg">新建业务模板</h3>
+                <button onclick="toggleCurlInput()" class="btn btn-sm btn-ghost gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    cURL 解析
+                </button>
+            </div>
+
+            <!-- cURL Parser Area -->
+            <div id="curl-parser-area" class="mb-6 p-4 bg-base-200 rounded-box hidden">
+                <label class="label">
+                    <span class="label-text">粘贴浏览器复制的 cURL 内容:</span>
+                </label>
+                <textarea id="curl-input" class="textarea textarea-bordered w-full code-editor text-xs mb-3" rows="4"
+                    placeholder="curl 'https://api.example.com/...' -H '...' --data-raw '...'"></textarea>
+                <div class="flex justify-end">
+                    <button onclick="parseAndFillCurl()" class="btn btn-sm btn-primary">
+                        解析并填充
+                    </button>
+                </div>
+            </div>
+
+            <form id="template-form" class="space-y-4" onsubmit="event.preventDefault();">
+                <input type="hidden" id="template-id">
+                <div class="form-control">
+                    <label class="label"><span class="label-text">模板类型</span></label>
+                    <div class="flex gap-6">
+                        <label class="label cursor-pointer gap-2">
+                            <input type="radio" name="template-type" value="single" checked onchange="toggleTemplateType()" class="radio radio-primary" />
+                            <span class="label-text">单接口模板</span>
+                        </label>
+                        <label class="label cursor-pointer gap-2">
+                            <input type="radio" name="template-type" value="workflow" onchange="toggleTemplateType()" class="radio radio-primary" />
+                            <span class="label-text">工作流模板</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="single-template-area" class="grid md:grid-cols-12 gap-4">
+                    <div class="md:col-span-8 form-control">
+                        <label class="label"><span class="label-text">模板名称 *</span></label>
+                        <input type="text" id="template-name" required class="input input-bordered w-full">
+                    </div>
+                    <div class="md:col-span-4 form-control">
+                        <label class="label"><span class="label-text">请求方法</span></label>
+                        <select id="template-method" class="select select-bordered w-full">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                        </select>
+                    </div>
+                    
+                    <div class="md:col-span-12 form-control">
+                        <label class="label"><span class="label-text">API URL *</span></label>
+                        <input type="url" id="template-url" required class="input input-bordered w-full font-mono text-sm">
+                    </div>
+
+                    <div class="md:col-span-12 form-control">
+                        <label class="label"><span class="label-text">描述</span></label>
+                        <input type="text" id="template-description" class="input input-bordered w-full">
+                    </div>
+
+                    <div class="md:col-span-12 form-control">
+                        <label class="label"><span class="label-text">Header 组（可选）</span></label>
+                        <select id="template-header-group" class="select select-bordered w-full">
+                            <option value="">不使用 Header 组</option>
+                        </select>
+                        <label class="label"><span class="label-text-alt">可在“设置”页管理 Header 组</span></label>
+                    </div>
+
+                    <div class="md:col-span-6 form-control">
+                        <label class="label"><span class="label-text">Headers（原生）</span></label>
+                        <textarea id="template-headers" class="textarea textarea-bordered code-editor text-xs h-24" 
+                            placeholder="Content-Type: application/json&#10;Cookie: other_uid=Ths"></textarea>
+                    </div>
+                    <div class="md:col-span-6 form-control">
+                        <label class="label"><span class="label-text">默认查询参数 (JSON)</span></label>
+                        <textarea id="template-params" class="textarea textarea-bordered code-editor text-xs h-24" 
+                            placeholder='{"page": 1, "size": 10}'></textarea>
+                    </div>
+                    
+                    <div class="md:col-span-12 form-control">
+                        <label class="label"><span class="label-text">默认消息体 (JSON 或 Form 字符串)</span></label>
+                        <textarea id="template-body" class="textarea textarea-bordered code-editor text-xs h-20" 
+                            placeholder='key1=value1&key2=value2'></textarea>
+                        <div class="mt-2">
+                            <label class="label"><span class="label-text">请求体类型</span></label>
+                            <div class="flex gap-6">
+                                <label class="label cursor-pointer gap-2">
+                                    <input type="radio" name="body-type" value="json" class="radio radio-primary" />
+                                    <span class="label-text">JSON</span>
+                                </label>
+                                <label class="label cursor-pointer gap-2">
+                                    <input type="radio" name="body-type" value="form" class="radio radio-primary" />
+                                    <span class="label-text">Form</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="divider">解析设置</div>
+                
+                <div class="form-control">
+                    <label class="label"><span class="label-text">解析方式</span></label>
+                    <div class="flex gap-6">
+                        <label class="label cursor-pointer gap-2">
+                            <input type="radio" name="extract-type" value="python" checked onchange="toggleExtractType()" class="radio radio-primary" />
+                            <span class="label-text">Python 代码</span>
+                        </label>
+                        <label class="label cursor-pointer gap-2">
+                            <input type="radio" name="extract-type" value="jsonpath" onchange="toggleExtractType()" class="radio radio-primary" />
+                            <span class="label-text">JSON Path</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="parser-python-area">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">解析代码 (Python)</span></label>
+                        <textarea id="template-parser" class="textarea textarea-bordered code-editor text-sm font-mono leading-relaxed" rows="4" placeholder="def parse(data):
+    return data['results']"></textarea>
+                    </div>
+                </div>
+                <div id="parser-jsonpath-area" class="hidden">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">JSON Path</span></label>
+                        <input type="text" id="template-jsonpath" class="input input-bordered code-editor text-sm w-full"
+                            placeholder="data.answer[0].txt[0].content.components[0].data.datas">
+                        <label class="label"><span class="label-text-alt">支持点符号级联和数组索引，如: results[0].name</span></label>
+                    </div>
+                </div>
+
+                <div id="workflow-template-area" class="hidden">
+                    <div class="grid md:grid-cols-12 gap-4">
+                        <div class="md:col-span-8 form-control">
+                            <label class="label"><span class="label-text">工作流名称 *</span></label>
+                            <input type="text" id="workflow-name" class="input input-bordered w-full">
+                        </div>
+                        <div class="md:col-span-4 form-control">
+                            <label class="label"><span class="label-text">描述</span></label>
+                            <input type="text" id="workflow-description" class="input input-bordered w-full">
+                        </div>
+                        <div class="md:col-span-12 form-control">
+                            <label class="label"><span class="label-text">工作流定义 (JSON)</span></label>
+                            <textarea id="workflow-definition" class="textarea textarea-bordered code-editor text-xs h-64" placeholder='{
+  "description": "示例工作流",
+  "steps": [
+    {
+      "name": "step1",
+      "template_name": "get-robot-data",
+      "input": {"question": "$.params.question"},
+      "extract": {"condition": "$.condition", "token": "$.token"},
+      "retry": 3,
+      "sleep": {"min": 2, "max": 3}
+    },
+    {
+      "name": "step2",
+      "template_name": "iwencai_export",
+      "input": {
+        "query": "$.params.question",
+        "condition": "$.steps.step1.extracted.condition",
+        "iwc_token": "$.steps.step1.extracted.token",
+        "randomStr": "$random(1000000000,9999999999)"
+      },
+      "retry": 3,
+      "sleep": {"min": 2, "max": 3}
+    }
+  ]
+}'></textarea>
+                            <label class="label"><span class="label-text-alt">定义结构须与服务端工作流DSL一致</span></label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-action">
+                <button class="btn" onclick="closeTemplateModal(event)">取消</button>
+                <button class="btn btn-primary" onclick="saveTemplate()">保存</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Push Test Modal -->
+    <dialog id="push_test_modal" class="modal">
+        <div class="modal-box">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="closePushTestModal(event)">✕</button>
+            </form>
+            <h3 class="font-bold text-lg mb-4">测试推送</h3>
+            <form id="push-test-form" class="space-y-4" onsubmit="event.preventDefault();">
+                <input type="hidden" id="push-test-id">
+                <div class="form-control">
+                    <label class="label"><span class="label-text">测试消息内容</span></label>
+                    <textarea id="push-test-content" class="textarea textarea-bordered h-24" placeholder="请输入测试消息内容..."></textarea>
+                </div>
+            </form>
+            <div class="modal-action">
+                <button class="btn" onclick="closePushTestModal(event)">取消</button>
+                <button class="btn btn-primary" onclick="sendPushTest()">发送</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Confirm Modal -->
+    <dialog id="confirm_modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">确认操作</h3>
+            <p class="py-4" id="confirm-message">确定要执行此操作吗？</p>
+            <div class="modal-action">
+                <button class="btn" id="confirm-cancel-btn">取消</button>
+                <button class="btn btn-error" id="confirm-ok-btn">确定</button>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- Push Config Modal -->
+    <dialog id="push_modal" class="modal">
+        <div class="modal-box">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="closePushModal(event)">✕</button>
+            </form>
+            <h3 id="push-modal-title" class="font-bold text-lg mb-4">新建推送配置</h3>
+            <form id="push-form" class="space-y-4" onsubmit="event.preventDefault();">
+                <input type="hidden" id="push-id">
+                <div class="form-control">
+                    <label class="label"><span class="label-text">配置名称 *</span></label>
+                    <input type="text" id="push-name" required class="input input-bordered w-full">
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text">推送渠道</span></label>
+                    <select id="push-channel" class="select select-bordered w-full">
+                        <option value="feishu">飞书</option>
+                        <option value="discord">Discord</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text">Webhook URL *</span></label>
+                    <input type="url" id="push-webhook" required class="input input-bordered w-full">
+                </div>
+            </form>
+            <div class="modal-action">
+                <button class="btn" onclick="closePushModal(event)">取消</button>
+                <button class="btn btn-primary" onclick="savePushConfig()">保存</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- History Result Modal -->
+    <dialog id="history_modal" class="modal">
+        <div class="modal-box w-11/12 max-w-4xl">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="closeHistoryModal(event)">✕</button>
+            </form>
+            <h3 class="font-bold text-lg mb-4">抓取结果详情</h3>
+            
+            <div class="grid md:grid-cols-2 gap-4 mb-6 text-sm bg-base-200 p-4 rounded-lg">
+                <div class="space-y-2">
+                    <p class="flex gap-2"><span class="font-bold opacity-70">模板名称:</span> <span id="hist-tpl-name"></span></p>
+                    <p class="flex gap-2"><span class="font-bold opacity-70">请求方法:</span> <span id="hist-method"></span></p>
+                </div>
+                <div class="space-y-2">
+                    <p class="flex gap-2"><span class="font-bold opacity-70">执行时间:</span> <span id="hist-time"></span></p>
+                    <p class="flex gap-2"><span class="font-bold opacity-70">状态:</span> <span id="hist-status"></span></p>
+                </div>
+                <div class="col-span-2 border-t border-base-content/10 pt-2 mt-2">
+                    <p class="mb-1"><span class="font-bold opacity-70">目标 URL:</span></p>
+                    <p id="hist-url" class="break-all font-mono text-xs opacity-80"></p>
+                </div>
+            </div>
+
+            <div id="hist-error-area" class="hidden mb-6">
+                <div class="alert alert-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span id="hist-error-msg" class="text-sm"></span>
+                </div>
+            </div>
+
+            <div id="hist-data-area" class="hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold">解析数据</h4>
+                    <button onclick="copyHistoryResult()" class="btn btn-xs btn-ghost">复制JSON</button>
+                </div>
+                <div class="max-h-96 overflow-auto">
+                    <pre class="px-4 text-sm"><code id="hist-data-code" class="language-json"></code></pre>
+                </div>
+            </div>
+            
+            <div id="hist-req-area" class="mt-6">
+                <h4 class="font-bold mb-2">目标请求</h4>
+                <div class="grid md:grid-cols-3 gap-4 col-span-1">
+                    <div>
+                        <div class="text-xs opacity-70 mb-1">Headers</div>
+                        <div class="max-h-48 overflow-auto">
+                            <pre class="px-4 text-xs"><code id="hist-req-headers-code" class="language-json"></code></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs opacity-70 mb-1">Params</div>
+                        <div class="max-h-48 overflow-auto">
+                            <pre class="px-4 text-xs"><code id="hist-req-params-code" class="language-json"></code></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs opacity-70 mb-1">Body</div>
+                        <div class="max-h-48 overflow-auto">
+                            <pre class="px-4 text-xs"><code id="hist-req-body-code" class="language-json"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="hist-raw-area" class="mt-6">
+                <h4 class="font-bold mb-2">目标响应</h4>
+                <div class="max-h-96 overflow-auto">
+                    <pre class="px-4 text-sm"><code id="hist-raw-code" class="language-json"></code></pre>
+                </div>
+            </div>
+            
+            <div id="hist-api-area" class="mt-6">
+                <h4 class="font-bold mb-2">抓取请求 (api/scrape 或 api/scrape/simple)</h4>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div>
+                        <div class="text-xs opacity-70 mb-1">Headers</div>
+                        <div class="max-h-48 overflow-auto">
+                            <pre class="px-4 text-xs"><code id="hist-api-headers-code" class="language-json"></code></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs opacity-70 mb-1">Params</div>
+                        <div class="max-h-48 overflow-auto">
+                            <pre class="px-4 text-xs"><code id="hist-api-params-code" class="language-json"></code></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs opacity-70 mb-1">Body</div>
+                        <div class="max-h-48 overflow-auto">
+                            <pre class="px-4 text-xs"><code id="hist-api-body-code" class="language-json"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-action">
+                <button class="btn" onclick="closeHistoryModal(event)">关闭</button>
+            </div>
+        </div>
+    </dialog>

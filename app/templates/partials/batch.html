@@ -1,0 +1,157 @@
+<div id="content-batch" class="page-content hidden w-full max-w-5xl mx-auto fade-in">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-3xl font-bold">批量跑数</h2>
+            <p class="text-base-content/60 mt-1">管理并执行批量抓取任务（CSV 参数，支持并发与休眠）</p>
+        </div>
+        <button onclick="openBatchModal()" class="btn btn-primary">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            新建任务
+        </button>
+    </div>
+    <div id="batch-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <template id="batch-empty">
+        <div class="col-span-full flex flex-col items-center justify-center p-12 text-base-content/50 border-2 border-dashed border-base-300 rounded-box bg-base-100">
+            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            <p class="text-lg font-medium">暂无批量任务</p>
+        </div>
+    </template>
+    <template id="batch-card">
+        <div class="card bg-base-100 shadow-lg border border-base-200">
+            <div class="card-body p-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="card-title text-lg font-bold batch-name"></div>
+                        <div class="text-xs mt-1">状态：<span class="batch-status badge badge-outline"></span></div>
+                        <div class="text-xs opacity-70 mt-1">模板：<span class="batch-template font-mono"></span></div>
+                        <div class="text-xs opacity-70 mt-1">并发：<span class="batch-concurrency"></span>，休眠：<span class="batch-sleep"></span> ms</div>
+                        <div class="text-xs opacity-70 mt-1">目录：<span class="batch-out font-mono break-all"></span></div>
+                    </div>
+                    <div class="badge badge-outline">CSV</div>
+                </div>
+                <div class="card-actions justify-end mt-4 pt-4 border-t border-base-200">
+                    <button class="btn btn-sm btn-ghost hover:text-primary btn-edit">编辑</button>
+                    <button class="btn btn-sm btn-ghost hover:text-primary btn-view">查看配置</button>
+                    <button class="btn btn-sm btn-ghost hover:text-primary btn-items">跑数列表</button>
+                    <button class="btn btn-sm btn-ghost hover:text-primary btn-run">执行</button>
+                    <button class="btn btn-sm btn-ghost text-warning hover:bg-warning/10 btn-stop">停止</button>
+                    <button class="btn btn-sm btn-ghost text-error hover:bg-error/10 btn-delete">删除</button>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+
+<dialog id="batch_modal" class="modal">
+    <div class="modal-box w-11/12 max-w-4xl">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="closeBatchModal(event)">✕</button>
+        </form>
+        <h3 id="batch-modal-title" class="font-bold text-lg mb-4">新建批量任务</h3>
+        <form id="batch-form" class="space-y-4" onsubmit="event.preventDefault();">
+            <input type="hidden" id="batch-id">
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="form-control">
+                    <label class="label"><span class="label-text">任务名称 *</span></label>
+                    <input type="text" id="batch-name" class="input input-bordered w-full" required>
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text">选择模板 *</span></label>
+                    <select id="batch-template" class="select select-bordered w-full" required>
+                        <option value="">请选择模板...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="form-control">
+                    <label class="label"><span class="label-text">并发数量</span></label>
+                    <input type="number" id="batch-concurrency" class="input input-bordered w-full" min="1" max="100" value="1">
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text">休眠间隔 (ms)</span></label>
+                    <input type="number" id="batch-sleep" class="input input-bordered w-full" min="0" max="600000" value="0">
+                </div>
+                <div class="form-control md:col-span-1">
+                    <label class="label"><span class="label-text">输出目录</span></label>
+                    <input type="text" id="batch-out" class="input input-bordered w-full" placeholder="batch_outputs/taskA">
+                    <label class="label"><span class="label-text-alt">相对路径将保存到 data/ 下</span></label>
+                </div>
+            </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text">CSV 参数</span></label>
+                <textarea id="batch-csv" class="textarea textarea-bordered font-mono text-xs h-40" placeholder="例如：\nkeyword,days\n苹果,7\n特斯拉,3"></textarea>
+                <label class="label"><span class="label-text-alt">第一行是表头，代表参数名称；每一行代表一次请求</span></label>
+            </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text">保存内容（勾选）</span></label>
+                <div class="flex flex-wrap gap-4 text-sm">
+                    <label class="label cursor-pointer gap-2"><input type="checkbox" class="checkbox checkbox-sm" value="success" checked> <span>success</span></label>
+                    <label class="label cursor-pointer gap-2"><input type="checkbox" class="checkbox checkbox-sm" value="error" checked> <span>error</span></label>
+                    <label class="label cursor-pointer gap-2"><input type="checkbox" class="checkbox checkbox-sm" value="data" checked> <span>data</span></label>
+                    <label class="label cursor-pointer gap-2"><input type="checkbox" class="checkbox checkbox-sm" value="raw_response"> <span>raw_response</span></label>
+                    <label class="label cursor-pointer gap-2"><input type="checkbox" class="checkbox checkbox-sm" value="request" checked> <span>request</span></label>
+                </div>
+                <label class="label"><span class="label-text">data 的 JSON Path（可选）</span></label>
+                <input type="text" id="batch-data-jsonpath" class="input input-bordered w-full" placeholder="results[0].name">
+            </div>
+        </form>
+        <div class="modal-action">
+            <button class="btn" onclick="closeBatchModal(event)">取消</button>
+            <button class="btn btn-primary" onclick="saveBatchTask()">保存</button>
+        </div>
+    </div>
+</dialog>
+
+<dialog id="batch_items_modal" class="modal">
+    <div class="modal-box w-11/12 max-w-4xl">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="closeBatchItemsModal(event)">✕</button>
+        </form>
+        <h3 class="font-bold text-lg mb-4">任务跑数列表</h3>
+        <div class="overflow-x-auto bg-base-100 rounded-box shadow">
+            <table class="table table-zebra w-full">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>状态</th>
+                        <th>参数</th>
+                        <th>输出文件</th>
+                        <th>错误</th>
+                    </tr>
+                </thead>
+                <tbody id="batch-items-list"></tbody>
+            </table>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<dialog id="batch_view_modal" class="modal">
+    <div class="modal-box w-11/12 max-w-4xl">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="closeBatchViewModal(event)">✕</button>
+        </form>
+        <h3 class="font-bold text-lg mb-4">任务配置</h3>
+        <div class="space-y-2 text-sm">
+            <div>名称：<span id="bv-name"></span></div>
+            <div>模板：<span id="bv-template"></span></div>
+            <div>并发：<span id="bv-concurrency"></span></div>
+            <div>休眠：<span id="bv-sleep"></span> ms</div>
+            <div>目录：<span id="bv-out" class="font-mono break-all"></span></div>
+            <div>保存字段：<span id="bv-fields"></span></div>
+            <div>data JSONPath：<span id="bv-jsonpath" class="font-mono break-all"></span></div>
+            <div>CSV：</div>
+            <pre class="font-mono text-xs bg-base-200 p-2 rounded max-h-64 overflow-auto" id="bv-csv"></pre>
+        </div>
+        <div class="modal-action">
+            <button class="btn" onclick="closeBatchViewModal(event)">关闭</button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据抓取与推送管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="/static/css/custom.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/config.js"></script>
+</head>
+
+<body class="bg-base-100 min-h-screen">
+
+    <div class="drawer lg:drawer-open min-h-screen">
+        <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content flex flex-col p-4 md:p-8 bg-base-100">
+            <!-- Mobile Toggle Button -->
+            <div class="lg:hidden mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <label for="my-drawer-2" class="btn btn-square btn-ghost drawer-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            class="inline-block w-6 h-6 stroke-current">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </label>
+                    <span class="text-lg font-bold">数据抓取管理</span>
+                </div>
+            </div>
+
+            {% include 'partials/templates.html' %}
+            {% include 'partials/batch.html' %}
+            {% include 'partials/push.html' %}
+            {% include 'partials/history.html' %}
+            {% include 'partials/test.html' %}
+            {% include 'partials/settings.html' %}
+
+        </div>
+        <div class="drawer-side z-40">
+            <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
+            <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+                <!-- Sidebar content here -->
+                <li class="mb-8 mt-2 px-4">
+                    <div class="flex items-center gap-3 px-0 hover:bg-transparent">
+                        <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/40">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="font-bold text-lg">抓取</div>
+                            <div class="text-xs opacity-60">Scraper Admin</div>
+                        </div>
+                    </div>
+                </li>
+                
+                <li class="mb-1"><a onclick="showTab('templates')" id="menu-templates" class="active font-medium py-3"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> 业务模板</a></li>
+                <li class="mb-1"><a onclick="showTab('batch')" id="menu-batch" class="font-medium py-3"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M5 11h14M7 15h10M9 19h6" /></svg> 批量跑数</a></li>
+                <li class="mb-1"><a onclick="showTab('push')" id="menu-push" class="font-medium py-3"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> 推送配置</a></li>
+                <li class="mb-1"><a onclick="showTab('history')" id="menu-history" class="font-medium py-3"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> 抓取历史</a></li>
+                <li class="mb-1"><a onclick="showTab('test')" id="menu-test" class="font-medium py-3"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg> 测试抓取</a></li>
+                <li class="mb-1"><a onclick="showTab('settings')" id="menu-settings" class="font-medium py-3"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055a9 9 0 012 0l.24 1.68a7.5 7.5 0 011.74.72l1.35-1.06a9 9 0 011.45 1.45l-1.06 1.35c.27.54.52 1.13.72 1.74l1.68.24a9 9 0 010 2l-1.68.24c.2-.61.45-1.2.72-1.74L6.45 5.645A9 9 0 017.9 4.2l1.35 1.06c.54-.27 1.13-.52 1.74-.72L11 3.055zM12 9a3 3 0 100 6 3 3 0 000-6z" /></svg> 设置</a></li>
+                
+                <div class="divider"></div>
+                <li><a href="/docs" target="_blank" class="py-3"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> API 文档</a></li>
+            </ul>
+        </div>
+    </div>
+
+    {% include 'partials/modals.html' %}
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast toast-end z-50">
+        <!-- Toasts will be injected here -->
+    </div>
+
+    <template id="toast-template">
+        <div class="alert shadow-lg mb-2 min-w-[300px]">
+            <span class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6 icon-success hidden" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6 icon-error hidden" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span class="toast-message"></span>
+            </span>
+        </div>
+    </template>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>

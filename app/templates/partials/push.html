@@ -1,0 +1,55 @@
+<div id="content-push" class="page-content hidden w-full max-w-5xl mx-auto fade-in">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-3xl font-bold">推送配置</h2>
+            <p class="text-base-content/60 mt-1">配置消息推送渠道 (飞书/Discord)</p>
+        </div>
+        <button onclick="openPushModal()" class="btn btn-primary">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                </path>
+            </svg>
+            新建配置
+        </button>
+    </div>
+    <div id="push-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Push configs will be loaded here -->
+    </div>
+
+    <template id="push-empty">
+        <div class="col-span-full flex flex-col items-center justify-center p-12 text-base-content/50 border-2 border-dashed border-base-300 rounded-box bg-base-100">
+            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <p class="text-lg font-medium">暂无推送配置</p>
+        </div>
+    </template>
+
+    <template id="push-card">
+        <div class="card bg-base-100 shadow-lg border border-base-200">
+            <div class="card-body p-6">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="card-title text-lg font-bold push-name"></h3>
+                    <div class="badge badge-outline push-channel"></div>
+                </div>
+                <div class="bg-base-200/50 p-2 rounded text-xs font-mono text-base-content/60 truncate push-url"></div>
+                <div class="card-actions justify-end mt-4 pt-4 border-t border-base-200">
+                    <button class="btn btn-sm btn-ghost hover:text-primary btn-edit">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4h2m2 0h2m-2 2l3 3m-7-3l-6 6v4h4l6-6"></path></svg>
+                        编辑
+                    </button>
+                    <button class="btn btn-sm btn-ghost hover:text-primary btn-test">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        测试
+                    </button>
+                    <button class="btn btn-sm btn-ghost text-error btn-delete">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        删除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

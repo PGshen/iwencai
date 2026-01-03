@@ -1,0 +1,109 @@
+<div id="content-history" class="page-content hidden w-full max-w-5xl mx-auto fade-in">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-3xl font-bold">抓取历史</h2>
+            <p class="text-base-content/60 mt-1">查看最近的抓取任务执行记录</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="clearHistory()" class="btn btn-ghost text-error">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                清空
+            </button>
+            <button onclick="loadHistory()" class="btn btn-ghost">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                    </path>
+                </svg>
+                刷新
+            </button>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap gap-4 mb-4 bg-base-100 p-4 rounded-box shadow-sm">
+        <div class="form-control flex-1">
+            <input type="text" id="hist-search-keyword" placeholder="搜索 URL 或模板名称..." class="input input-bordered w-full" onkeyup="if(event.key === 'Enter') loadHistory(1)">
+        </div>
+        <select id="hist-filter-method" class="select select-bordered" onchange="loadHistory(1)">
+            <option value="">所有方法</option>
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+        </select>
+        <select id="hist-filter-status" class="select select-bordered" onchange="loadHistory(1)">
+            <option value="">所有状态</option>
+            <option value="success">成功</option>
+            <option value="failed">失败</option>
+        </select>
+        <div class="form-control">
+            <input type="datetime-local" id="hist-start-time" class="input input-bordered" onchange="loadHistory(1)" placeholder="开始时间">
+        </div>
+        <div class="form-control">
+            <input type="datetime-local" id="hist-end-time" class="input input-bordered" onchange="loadHistory(1)" placeholder="结束时间">
+        </div>
+        <button class="btn btn-primary" onclick="loadHistory(1)">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            搜索
+        </button>
+    </div>
+
+    <div class="overflow-x-auto bg-base-100 rounded-box shadow">
+        <table class="table table-zebra w-full">
+            <thead>
+                <tr>
+                    <th>状态</th>
+                    <th>模板 / URL</th>
+                    <th>方法</th>
+                    <th>时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="history-list">
+                <!-- History will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-between items-center mt-4 px-2">
+        <div class="text-sm text-base-content/60">
+            共 <span id="hist-total-count">0</span> 条记录
+        </div>
+        <div class="join">
+            <button class="join-item btn btn-sm" id="hist-prev-btn" onclick="changeHistoryPage(-1)">«</button>
+            <button class="join-item btn btn-sm no-animation">第 <span id="hist-current-page">1</span> / <span id="hist-total-pages">1</span> 页</button>
+            <button class="join-item btn btn-sm" id="hist-next-btn" onclick="changeHistoryPage(1)">»</button>
+        </div>
+    </div>
+
+    <template id="history-empty">
+        <tr>
+            <td colspan="5" class="text-center py-8 text-base-content/50">
+                <div class="flex flex-col items-center">
+                    <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>暂无抓取记录</span>
+                </div>
+            </td>
+        </tr>
+    </template>
+
+    <template id="history-row">
+        <tr class="hover">
+            <td>
+                <div class="badge gap-2 hist-status"></div>
+            </td>
+            <td>
+                <div class="font-bold hist-name"></div>
+                <div class="text-xs opacity-50 truncate max-w-xs hist-url"></div>
+            </td>
+            <td><code class="text-xs bg-base-200 px-1 py-0.5 rounded hist-method"></code></td>
+            <td class="text-sm hist-time"></td>
+            <td>
+                <button class="btn btn-xs btn-outline btn-primary btn-view">
+                    详情
+                </button>
+            </td>
+        </tr>
+    </template>
+</div>
